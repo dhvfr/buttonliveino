@@ -28,6 +28,11 @@ background-color: #1c1c1d;
 background-repeat: no-repeat;
 background-size: cover;
 background-position: center;
+user-select: none;
+-webkit-user-select: none;
+-moz-user-select: none;
+-khtml-user-select: none;
+-ms-user-select: none;
 }
 .prompt {
 position: absolute;
