@@ -66,9 +66,6 @@ background-color: #005a9e;
 <button id="outputbutton" ontouchstart="toggleLED('on')" ontouchend="toggleLED('off')" onmousedown="toggleLED('on')" onmouseup="toggleLED('off')">
 Signal LED light and output GPIO2 (D4)
 </button>
-<p>
-NOTE: Ethernet or mobile data required!
-</p>
 </div>
 </body>
 <script>
