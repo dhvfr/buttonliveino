@@ -69,18 +69,11 @@ Signal LED light and output GPIO2 (D4)
 <p>
 NOTE: Ethernet or mobile data required!
 </p>
-<button id="buttonclick" onclick="clickbutton()" disabled>
-Activate all the live of Linh Ngo Cosmetics
-</button>
 </div>
 </body>
 <script>
 function toggleLED(state) {
 fetch("/led?state=" + state);
-document.getElementById("buttonclick").disabled = false;
-}
-function clickbutton() {
-window.location.href = "https://docs.google.com/document/d/1i_6TjM0vPDR0Hio-dRW2tXt9zV-uKAI9U5d5zJ8q94I";
 }
 </script>
 </head>
