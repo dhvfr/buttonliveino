@@ -1,9 +1,10 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-const char *ssid = "All live link";
+const char *ssid = "Remote GPIO 2";
 const char *password = "12345678";
+const int outputPin = D4;
 ESP8266WebServer server(80);
-const char html[] PROGMEM = R"rawliteral(
+const char systempage[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,6 +25,7 @@ width: 100%;
 height: 100vh;
 overflow: hidden;
 box-sizing: border-box;
+font-family: Consolas, monaco, monospace;
 background-color: #1c1c1d;
 background-repeat: no-repeat;
 background-size: cover;
@@ -41,24 +43,25 @@ width: 400px;
 background-color: #252728;
 }
 .prompt p {
-color: #e2e5e9;
+color: #32cd32;
 }
 .prompt button {
 padding: 8px;
 width: 100%;
 outline: none;
 border: none;
+font-family: Consolas, monaco, monospace;
 font-size: 14px;
 font-weight: 500;
 margin: 10px 0;
-background-color: #0078d4;
-color: #e2e5e9;
+background-color: #3b3d3e;
+color: #32cd32;
 }
 .prompt button:hover {
-background-color: #106ebe;
+background-color: #1c1c1d;
 }
 .prompt button:active {
-background-color: #005a9e;
+background-color: #000000;
 }
 </style>
 <body>
@@ -66,6 +69,18 @@ background-color: #005a9e;
 <button id="outputbutton" ontouchstart="toggleLED('on')" ontouchend="toggleLED('off')" onmousedown="toggleLED('on')" onmouseup="toggleLED('off')">
 Signal LED light and output GPIO2 (D4)
 </button>
+<button onclick="location.reload();">
+Update memory status now
+</button>
+<p>
+Free heap: %FREE_HEAP% bytes
+</p>
+<p>
+Heap fragmentation: %HEAP_FRAG%%
+</p>
+<p>
+Max free block size: %MAX_BLOCK% bytes
+</p>
 </div>
 </body>
 <script>
@@ -76,23 +91,33 @@ fetch("/led?state=" + state);
 </head>
 </html>
 )rawliteral";
+String processor(const String& var) {
+if (var == "FREE_HEAP") return String(ESP.getFreeHeap());
+if (var == "HEAP_FRAG") return String(ESP.getHeapFragmentation());
+if (var == "MAX_BLOCK") return String(ESP.getMaxFreeBlockSize());
+return String();
+}
 void handleRoot() {
-server.send_P(200, "text/html", html);
+String html = systempage;
+html.replace("%FREE_HEAP%", processor("FREE_HEAP"));
+html.replace("%HEAP_FRAG%", processor("HEAP_FRAG"));
+html.replace("%MAX_BLOCK%", processor("MAX_BLOCK"));
+server.send(200, "text/html", html);
 }
 void handleLED() {
 String state = server.arg("state");
 if (state == "on") {
-digitalWrite(2, LOW);
+digitalWrite(outputPin, LOW);
 }
 else {
-digitalWrite(2, HIGH);
+digitalWrite(outputPin, HIGH);
 }
 server.send(200, "text/plain", "OK");
 }
 void setup() {
 Serial.begin(115200);
-pinMode(2, OUTPUT);
-digitalWrite(2, HIGH);
+pinMode(outputPin, OUTPUT);
+digitalWrite(outputPin, HIGH);
 WiFi.softAP(ssid, password);
 Serial.println("Access Point Started");
 Serial.print("IP address: ");
