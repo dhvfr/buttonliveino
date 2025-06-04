@@ -11,7 +11,9 @@ const char systempage[] PROGMEM = R"rawliteral(
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>System</title>
+<title>
+System
+</title>
 <style>
 *{
 margin: 0;
@@ -69,6 +71,11 @@ background-color: #000000;
 <button id="outputbutton" ontouchstart="toggleLED('on')" ontouchend="toggleLED('off')" onmousedown="toggleLED('on')" onmouseup="toggleLED('off')">
 Signal LED light and output GPIO2 (D4)
 </button>
+<form method="POST" action="/off">
+<button type="submit">
+Shut down system
+</button>
+</form>
 <button onclick="location.reload();">
 Update memory status now
 </button>
@@ -112,18 +119,25 @@ digitalWrite(outputPin, LOW);
 else {
 digitalWrite(outputPin, HIGH);
 }
-server.send(200, "text/plain", "OK");
+server.send(200, "text/html", "OK");
+}
+void handleOff() {
+server.send(200, "text/plain", "System is shuting down...");
+delay(1000);
+ESP.deepSleep(0);
 }
 void setup() {
 Serial.begin(115200);
 pinMode(outputPin, OUTPUT);
 digitalWrite(outputPin, HIGH);
 WiFi.softAP(ssid, password);
+while (WiFi.status() != WL_CONNECTED) delay(500);
 Serial.println("Access Point Started");
 Serial.print("IP address: ");
 Serial.println(WiFi.softAPIP());
 server.on("/", handleRoot);
 server.on("/led", handleLED);
+server.on("/off", handleOff);
 server.begin();
 Serial.println("Web server started");
 }
