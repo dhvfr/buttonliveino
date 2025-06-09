@@ -2,6 +2,8 @@
 #include <ESP8266WebServer.h>
 const char *ssid = "Remote GPIO 2";
 const char *password = "12345678";
+const char* http_username = "Administrator";
+const char* http_password = "00000000";
 const int outputPin = D4;
 ESP8266WebServer server(80);
 const char systempage[] PROGMEM = R"rawliteral(
@@ -105,6 +107,9 @@ if (var == "MAX_BLOCK") return String(ESP.getMaxFreeBlockSize());
 return String();
 }
 void handleRoot() {
+if (!server.authenticate(sys_username, sys_password)) {
+return server.requestAuthentication();
+}
 String html = systempage;
 html.replace("%FREE_HEAP%", processor("FREE_HEAP"));
 html.replace("%HEAP_FRAG%", processor("HEAP_FRAG"));
