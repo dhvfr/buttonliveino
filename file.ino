@@ -119,7 +119,7 @@ digitalWrite(outputPin, LOW);
 else {
 digitalWrite(outputPin, HIGH);
 }
-server.send(200, "text/html", "OK");
+server.send(200, "text/plain", "OK");
 }
 void handleOff() {
 server.send(200, "text/plain", "System is shuting down...");
