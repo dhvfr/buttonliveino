@@ -2,8 +2,6 @@
 #include <ESP8266WebServer.h>
 const char *ssid = "Remote GPIO 2";
 const char *password = "12345678";
-const char* http_username = "Administrator";
-const char* http_password = "00000000";
 const int outputPin = D4;
 ESP8266WebServer server(80);
 const char systempage[] PROGMEM = R"rawliteral(
@@ -73,13 +71,8 @@ background-color: #000000;
 <button id="outputbutton" ontouchstart="toggleLED('on')" ontouchend="toggleLED('off')" onmousedown="toggleLED('on')" onmouseup="toggleLED('off')">
 Signal LED light and output GPIO2 (D4)
 </button>
-<form method="POST" action="/off">
-<button type="submit">
-Shut down system
-</button>
-</form>
 <button onclick="location.reload();">
-Update memory status now
+Update memory status now (Don't turn off system or change network)
 </button>
 <p>
 Free heap: %FREE_HEAP% bytes
@@ -107,9 +100,6 @@ if (var == "MAX_BLOCK") return String(ESP.getMaxFreeBlockSize());
 return String();
 }
 void handleRoot() {
-if (!server.authenticate(sys_username, sys_password)) {
-return server.requestAuthentication();
-}
 String html = systempage;
 html.replace("%FREE_HEAP%", processor("FREE_HEAP"));
 html.replace("%HEAP_FRAG%", processor("HEAP_FRAG"));
@@ -124,6 +114,7 @@ digitalWrite(outputPin, LOW);
 else {
 digitalWrite(outputPin, HIGH);
 }
+server.send(200, "text/plain", "Button command");
 }
 void handleOff() {
 server.send(200, "text/plain", "System is shuting down...");
@@ -141,7 +132,7 @@ Serial.print("IP address: ");
 Serial.println(WiFi.softAPIP());
 server.on("/", handleRoot);
 server.on("/led", handleLED);
-server.on("/off", handleOff);
+server.on("/shutdown", handleOff);
 server.begin();
 Serial.println("Web server started");
 }
